@@ -5,7 +5,7 @@ import cn.sinjinsong.common.domain.MessageHeader;
 import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseType;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -35,7 +35,7 @@ public class DownloadManager implements Runnable {
                 MessageHeader header = info.getMessage().getHeader();
                 Future<ByteBuffer> future = pool.submit(new DownloadHandler(info));
                 ByteBuffer buffer = future.get();
-                byte[] response = ProtostuffUtil.serialize(
+                byte[] response = ProtoStuffUtil.serialize(
                         new Response(ResponseHeader.builder()
                                 .type(ResponseType.FILE)
                                 .sender(header.getSender())

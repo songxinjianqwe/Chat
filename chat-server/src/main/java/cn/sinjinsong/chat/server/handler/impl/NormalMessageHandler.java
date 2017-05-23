@@ -4,7 +4,7 @@ import cn.sinjinsong.chat.server.handler.MessageHandler;
 import cn.sinjinsong.chat.server.user.UserManager;
 import cn.sinjinsong.common.domain.*;
 import cn.sinjinsong.common.enumeration.ResponseType;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class NormalMessageHandler implements MessageHandler {
             SocketChannel receiverChannel = userManager.getUserChannel(header.getReceiver());
             if (receiverChannel == null) {
                 //接收者下线
-                byte[] response = ProtostuffUtil.serialize(
+                byte[] response = ProtoStuffUtil.serialize(
                         new Response(
                                 ResponseHeader.builder()
                                         .type(ResponseType.PROMPT)
@@ -41,7 +41,7 @@ public class NormalMessageHandler implements MessageHandler {
                                 ByteBuffer.wrap(UserManager.RECEIVER_LOGGED_OFF)));
                 clientChannel.write(ByteBuffer.wrap(response));
             } else {
-                byte[] response = ProtostuffUtil.serialize(
+                byte[] response = ProtoStuffUtil.serialize(
                         new Response(
                                 ResponseHeader.builder()
                                         .type(ResponseType.NORMAL)

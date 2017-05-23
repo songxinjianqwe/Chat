@@ -6,7 +6,7 @@ import cn.sinjinsong.common.domain.Message;
 import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseType;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class BroadcastMessageHandler implements MessageHandler {
     @Override
     public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
         try {
-            byte[] response = ProtostuffUtil.serialize(
+            byte[] response = ProtoStuffUtil.serialize(
                     new Response(
                             ResponseHeader.builder()
                                     .type(ResponseType.NORMAL)

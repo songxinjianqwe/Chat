@@ -5,7 +5,7 @@ import cn.sinjinsong.chat.server.handler.MessageHandler;
 import cn.sinjinsong.common.domain.*;
 import cn.sinjinsong.common.enumeration.ResponseCode;
 import cn.sinjinsong.common.enumeration.ResponseType;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +33,7 @@ public class LoginMessageHandler implements MessageHandler {
         try {
             if (userManager.login(clientChannel, username, password)) {
 
-                byte[] response = ProtostuffUtil.serialize(
+                byte[] response = ProtoStuffUtil.serialize(
                         new Response(
                                 ResponseHeader.builder()
                                         .type(ResponseType.PROMPT)
@@ -44,7 +44,7 @@ public class LoginMessageHandler implements MessageHandler {
 
                 clientChannel.write(ByteBuffer.wrap(response));
             } else {
-                byte[] response = ProtostuffUtil.serialize(
+                byte[] response = ProtoStuffUtil.serialize(
                         new Response(
                                 ResponseHeader.builder()
                                         .type(ResponseType.PROMPT)

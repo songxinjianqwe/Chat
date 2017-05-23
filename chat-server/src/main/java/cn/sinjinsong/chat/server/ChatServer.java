@@ -5,7 +5,7 @@ import cn.sinjinsong.chat.server.task.DownloadManager;
 import cn.sinjinsong.chat.server.util.SpringContextUtil;
 import cn.sinjinsong.common.domain.DownloadInfo;
 import cn.sinjinsong.common.domain.Message;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -143,7 +143,7 @@ public class ChatServer {
                 if(bytes.length == 0){
                     return;
                 }
-                Message message = ProtostuffUtil.deserialize(bytes, Message.class);
+                Message message = ProtoStuffUtil.deserialize(bytes, Message.class);
                 System.out.println(message.getHeader().getType().toString().toLowerCase());
                 MessageHandler messageHandler = SpringContextUtil.getBean("MessageHandler", message.getHeader().getType().toString().toLowerCase());
                 messageHandler.handle(message, selector, key, downloadTaskQueue);

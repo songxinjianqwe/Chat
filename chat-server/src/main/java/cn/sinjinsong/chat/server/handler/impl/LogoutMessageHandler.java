@@ -7,7 +7,7 @@ import cn.sinjinsong.common.domain.Message;
 import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseType;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +31,7 @@ public class LogoutMessageHandler implements MessageHandler {
         try {
             SocketChannel clientChannel = (SocketChannel) client.channel();
             userManager.logout(clientChannel);
-            byte[] response = ProtostuffUtil.serialize(
+            byte[] response = ProtoStuffUtil.serialize(
                     new Response(ResponseHeader.builder().type(ResponseType.PROMPT)
                             .sender(message.getHeader().getSender())
                             .timestamp(message.getHeader().getTimestamp()).build(),

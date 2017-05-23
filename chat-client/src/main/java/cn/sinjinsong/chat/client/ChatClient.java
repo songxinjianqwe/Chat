@@ -8,7 +8,7 @@ import cn.sinjinsong.common.enumeration.MessageType;
 import cn.sinjinsong.common.enumeration.ResponseCode;
 import cn.sinjinsong.common.util.DateTimeUtil;
 import cn.sinjinsong.common.util.FileUtil;
-import cn.sinjinsong.common.util.ProtostuffUtil;
+import cn.sinjinsong.common.util.ProtoStuffUtil;
 
 import javax.swing.*;
 import java.awt.*;
@@ -103,7 +103,7 @@ public class ChatClient extends Frame {
                         .timestamp(System.currentTimeMillis())
                         .build(), password);
         try {
-            clientChannel.write(ByteBuffer.wrap(ProtostuffUtil.serialize(message)));
+            clientChannel.write(ByteBuffer.wrap(ProtoStuffUtil.serialize(message)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -132,7 +132,7 @@ public class ChatClient extends Frame {
                         .timestamp(System.currentTimeMillis())
                         .build(), null);
         try {
-            clientChannel.write(ByteBuffer.wrap(ProtostuffUtil.serialize(message)));
+            clientChannel.write(ByteBuffer.wrap(ProtoStuffUtil.serialize(message)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -171,7 +171,7 @@ public class ChatClient extends Frame {
                                 .build(), content);
             }
             System.out.println(message);
-            clientChannel.write(ByteBuffer.wrap(ProtostuffUtil.serialize(message)));
+            clientChannel.write(ByteBuffer.wrap(ProtoStuffUtil.serialize(message)));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -205,7 +205,7 @@ public class ChatClient extends Frame {
                             }
                             byte[] bytes = baos.toByteArray();
                             baos.close();
-                            Response response = ProtostuffUtil.deserialize(bytes, Response.class);
+                            Response response = ProtoStuffUtil.deserialize(bytes, Response.class);
                             handleResponse(response);
                         }
                     }

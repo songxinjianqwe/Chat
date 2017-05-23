@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by SinjinSong on 2017/5/22.
  */
-public class ProtostuffUtil {
+public class ProtoStuffUtil {
     private static Map<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<>();
     
     public static <T> byte[] serialize(T obj) {
