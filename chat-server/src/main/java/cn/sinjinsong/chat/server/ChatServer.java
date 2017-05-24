@@ -18,14 +18,16 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Scanner;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by SinjinSong on 2017/3/25.
  */
 public class ChatServer {
     public static final int DEFAULT_BUFFER_SIZE = 1024;
-    private static final String QUIT = "QUIT";
     public static final int PORT = 9000;
+    public static final String QUIT = "QUIT";
+    private AtomicInteger onlineUsers;
     
     private ServerSocketChannel serverSocketChannel;
     private Selector selector;
@@ -60,7 +62,7 @@ public class ChatServer {
             this.downloadTaskQueue = new ArrayBlockingQueue<>(20);
             this.taskManagerThread = new TaskManagerThread(downloadPool, downloadTaskQueue);
             this.listenerThread = new ListenerThread();
-            
+            this.onlineUsers = new AtomicInteger(0);
             new Thread(listenerThread).start();
             new Thread(taskManagerThread).start();
         } catch (IOException e) {
@@ -194,7 +196,7 @@ public class ChatServer {
                 baos.close();
                 Message message = ProtoStuffUtil.deserialize(bytes, Message.class);
                 MessageHandler messageHandler = SpringContextUtil.getBean("MessageHandler", message.getHeader().getType().toString().toLowerCase());
-                messageHandler.handle(message, selector, key, downloadTaskQueue);
+                messageHandler.handle(message, selector, key, downloadTaskQueue,onlineUsers);
             } catch (IOException e) {
                 e.printStackTrace();
             }

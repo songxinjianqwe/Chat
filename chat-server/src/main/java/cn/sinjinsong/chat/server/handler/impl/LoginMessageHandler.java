@@ -16,6 +16,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by SinjinSong on 2017/5/23.
@@ -26,14 +27,13 @@ public class LoginMessageHandler extends MessageHandler {
     private UserManager userManager;
 
     @Override
-    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
+    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue, AtomicInteger onlineUsers) {
         SocketChannel clientChannel = (SocketChannel) client.channel();
         MessageHeader header = message.getHeader();
         String username = header.getSender();
         String password = message.getBody();
         try {
             if (userManager.login(clientChannel, username, password)) {
-
                 byte[] response = ProtoStuffUtil.serialize(
                         new Response(
                                 ResponseHeader.builder()
@@ -41,11 +41,11 @@ public class LoginMessageHandler extends MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .responseCode(ResponseCode.LOGIN_SUCCESS.getCode()).build(),
-                                PromptMsgProperty.LOGIN_SUCCESS.getBytes(PromptMsgProperty.charset)));
+                                String.format(PromptMsgProperty.LOGIN_SUCCESS,onlineUsers.incrementAndGet()).getBytes(PromptMsgProperty.charset)));
                 clientChannel.write(ByteBuffer.wrap(response));
                 //连续发送信息不可行,必须要暂时中断一下
                 //粘包问题
-                Thread.sleep(1);
+                Thread.sleep(10);
                 //登录提示广播
                 byte[] loginBroadcast = ProtoStuffUtil.serialize(
                         new Response(

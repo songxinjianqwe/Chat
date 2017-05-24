@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by SinjinSong on 2017/5/23.
@@ -21,7 +22,7 @@ import java.util.concurrent.BlockingQueue;
 @Component("MessageHandler.broadcast")
 public class BroadcastMessageHandler extends MessageHandler {
     @Override
-    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
+    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue, AtomicInteger onlineUsers) {
         try {
             byte[] response = ProtoStuffUtil.serialize(
                     new Response(

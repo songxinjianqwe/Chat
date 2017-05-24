@@ -10,6 +10,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by SinjinSong on 2017/5/23.
@@ -18,7 +19,7 @@ import java.util.concurrent.BlockingQueue;
 @Component("MessageHandler.task")
 public class TaskMessageHandler extends MessageHandler {
     @Override
-    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
+    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue, AtomicInteger onlineUsers) {
         DownloadInfo downloadInfo = new DownloadInfo((SocketChannel) client.channel(), message.getBody(), message);
         try {
             queue.put(downloadInfo);

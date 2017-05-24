@@ -19,6 +19,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by SinjinSong on 2017/5/23.
@@ -29,7 +30,7 @@ public class LogoutMessageHandler extends MessageHandler {
     private UserManager userManager;
 
     @Override
-    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
+    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue, AtomicInteger onlineUsers) {
         try {
             SocketChannel clientChannel = (SocketChannel) client.channel();
             userManager.logout(clientChannel);
@@ -41,7 +42,7 @@ public class LogoutMessageHandler extends MessageHandler {
                             .timestamp(message.getHeader().getTimestamp()).build(),
                             PromptMsgProperty.LOGOUT_SUCCESS.getBytes(PromptMsgProperty.charset)));
             clientChannel.write(ByteBuffer.wrap(response));
-
+            onlineUsers.decrementAndGet();
             //下线广播
             byte[] logoutBroadcast = ProtoStuffUtil.serialize(
                     new Response(

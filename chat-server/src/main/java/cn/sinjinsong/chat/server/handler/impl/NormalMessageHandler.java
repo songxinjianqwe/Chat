@@ -15,6 +15,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Created by SinjinSong on 2017/5/23.
@@ -25,7 +26,7 @@ public class NormalMessageHandler extends MessageHandler {
     private UserManager userManager;
 
     @Override
-    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
+    public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue, AtomicInteger onlineUsers) {
         try {
             SocketChannel clientChannel = (SocketChannel) client.channel();
             MessageHeader header = message.getHeader();

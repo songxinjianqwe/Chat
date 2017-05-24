@@ -1,7 +1,5 @@
 package cn.sinjinsong.chat.server;
 
-import cn.sinjinsong.chat.server.handler.MessageHandler;
-import cn.sinjinsong.chat.server.util.SpringContextUtil;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.context.annotation.Configuration;
@@ -18,7 +16,5 @@ public class ChatServerTest {
     
     @Test
     public void test() {
-        MessageHandler messageHandler = SpringContextUtil.getBean("MessageHandler","login");
-        messageHandler.handle(null,null,null,null);
     }
 }
