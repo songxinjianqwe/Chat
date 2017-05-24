@@ -17,10 +17,7 @@ public class UserManager {
      * key是ip和端口号，value是用户名
      */
     private Map<SocketChannel, String> onlineUsers;
-    public static final byte[] LOGIN_SUCCESS = "登录成功".getBytes();
-    public static final byte[] LOGIN_FAILURE = "用户名或密码错误或重复登录，登录失败".getBytes();
-    public static final byte[] LOGOUT_SUCCESS = "注销成功".getBytes();
-    public static final byte[] RECEIVER_LOGGED_OFF = "接收者不存在或已下线".getBytes();
+  
     
     public UserManager() {
         users = new ConcurrentHashMap<>();

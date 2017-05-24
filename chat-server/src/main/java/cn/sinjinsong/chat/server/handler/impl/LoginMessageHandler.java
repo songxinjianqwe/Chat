@@ -1,7 +1,8 @@
 package cn.sinjinsong.chat.server.handler.impl;
 
-import cn.sinjinsong.chat.server.user.UserManager;
 import cn.sinjinsong.chat.server.handler.MessageHandler;
+import cn.sinjinsong.chat.server.property.PromptMsgProperty;
+import cn.sinjinsong.chat.server.user.UserManager;
 import cn.sinjinsong.common.domain.*;
 import cn.sinjinsong.common.enumeration.ResponseCode;
 import cn.sinjinsong.common.enumeration.ResponseType;
@@ -20,7 +21,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by SinjinSong on 2017/5/23.
  */
 @Component("MessageHandler.login")
-public class LoginMessageHandler implements MessageHandler {
+public class LoginMessageHandler extends MessageHandler {
     @Autowired
     private UserManager userManager;
 
@@ -40,9 +41,21 @@ public class LoginMessageHandler implements MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .responseCode(ResponseCode.LOGIN_SUCCESS.getCode()).build(),
-                                UserManager.LOGIN_SUCCESS));
-
+                                PromptMsgProperty.LOGIN_SUCCESS.getBytes()));
                 clientChannel.write(ByteBuffer.wrap(response));
+                //连续发送信息不可行,必须要暂时中断一下
+                //粘包问题
+                Thread.sleep(1);
+                //登录提示广播
+                byte[] loginBroadcast = ProtoStuffUtil.serialize(
+                        new Response(
+                                ResponseHeader.builder()
+                                        .type(ResponseType.NORMAL)
+                                        .sender(SYSTEM_SENDER)
+                                        .timestamp(message.getHeader().getTimestamp()).build(),
+                                String.format(PromptMsgProperty.LOGIN_BROADCAST, message.getHeader().getSender()).getBytes()));
+               super.broadcast(loginBroadcast,server);
+               
             } else {
                 byte[] response = ProtoStuffUtil.serialize(
                         new Response(
@@ -51,10 +64,12 @@ public class LoginMessageHandler implements MessageHandler {
                                         .responseCode(ResponseCode.LOGIN_FAILURE.getCode())
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp()).build(),
-                                UserManager.LOGIN_FAILURE));
+                                PromptMsgProperty.LOGIN_FAILURE.getBytes()));
                 clientChannel.write(ByteBuffer.wrap(response));
             }
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch(InterruptedException e){
             e.printStackTrace();
         }
     }

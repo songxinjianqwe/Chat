@@ -26,8 +26,8 @@ import java.security.NoSuchAlgorithmException;
 @Component("httpConnectionManager")
 public class HttpConnectionManager {
 
-    PoolingHttpClientConnectionManager manager = null;
-
+    private PoolingHttpClientConnectionManager manager = null;
+    
     @PostConstruct
     public void init() {
         LayeredConnectionSocketFactory sslsf = null;
@@ -72,7 +72,6 @@ public class HttpConnectionManager {
             CloseableHttpResponse response = client.execute(httpget);
             response.getEntity().writeTo(os);
         } catch (IOException e) {
-            e.printStackTrace();
             return false;
         }
         return true;

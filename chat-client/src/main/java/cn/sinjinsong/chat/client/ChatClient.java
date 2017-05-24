@@ -231,7 +231,8 @@ public class ChatClient extends Frame {
                     }
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                JOptionPane.showMessageDialog(null,"服务器关闭，请重新尝试连接");
+                isLogin = false;
             }
         }
 

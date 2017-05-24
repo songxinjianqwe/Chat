@@ -16,7 +16,7 @@ import java.util.concurrent.BlockingQueue;
  * 生产者
  */
 @Component("MessageHandler.task")
-public class TaskMessageHandler implements MessageHandler {
+public class TaskMessageHandler extends MessageHandler {
     @Override
     public void handle(Message message, Selector server, SelectionKey client, BlockingQueue<DownloadInfo> queue) {
         DownloadInfo downloadInfo = new DownloadInfo((SocketChannel) client.channel(), message.getBody(), message);

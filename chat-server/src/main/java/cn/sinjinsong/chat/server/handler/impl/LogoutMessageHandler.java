@@ -1,6 +1,7 @@
 package cn.sinjinsong.chat.server.handler.impl;
 
 import cn.sinjinsong.chat.server.handler.MessageHandler;
+import cn.sinjinsong.chat.server.property.PromptMsgProperty;
 import cn.sinjinsong.chat.server.user.UserManager;
 import cn.sinjinsong.common.domain.DownloadInfo;
 import cn.sinjinsong.common.domain.Message;
@@ -23,7 +24,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by SinjinSong on 2017/5/23.
  */
 @Component("MessageHandler.logout")
-public class LogoutMessageHandler implements MessageHandler {
+public class LogoutMessageHandler extends MessageHandler {
     @Autowired
     private UserManager userManager;
 
@@ -38,8 +39,18 @@ public class LogoutMessageHandler implements MessageHandler {
                             .responseCode(ResponseCode.LOGOUT_SUCCESS.getCode())
                             .sender(message.getHeader().getSender())
                             .timestamp(message.getHeader().getTimestamp()).build(),
-                            UserManager.LOGOUT_SUCCESS));
+                            PromptMsgProperty.LOGOUT_SUCCESS.getBytes()));
             clientChannel.write(ByteBuffer.wrap(response));
+
+            //下线广播
+            byte[] logoutBroadcast = ProtoStuffUtil.serialize(
+                    new Response(
+                            ResponseHeader.builder()
+                                    .type(ResponseType.NORMAL)
+                                    .sender(SYSTEM_SENDER)
+                                    .timestamp(message.getHeader().getTimestamp()).build(),
+                            String.format(PromptMsgProperty.LOGOUT_BROADCAST, message.getHeader().getSender()).getBytes()));
+            super.broadcast(logoutBroadcast, server);
             System.out.println("客户端退出");
             //必须要cancel，否则无法从keys从去除该客户端
             client.cancel();

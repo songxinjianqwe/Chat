@@ -1,6 +1,7 @@
 package cn.sinjinsong.chat.server.handler.impl;
 
 import cn.sinjinsong.chat.server.handler.MessageHandler;
+import cn.sinjinsong.chat.server.property.PromptMsgProperty;
 import cn.sinjinsong.chat.server.user.UserManager;
 import cn.sinjinsong.common.domain.*;
 import cn.sinjinsong.common.enumeration.ResponseType;
@@ -19,7 +20,7 @@ import java.util.concurrent.BlockingQueue;
  * Created by SinjinSong on 2017/5/23.
  */
 @Component("MessageHandler.normal")
-public class NormalMessageHandler implements MessageHandler {
+public class NormalMessageHandler extends MessageHandler {
     @Autowired
     private UserManager userManager;
 
@@ -38,7 +39,7 @@ public class NormalMessageHandler implements MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .build(),
-                                UserManager.RECEIVER_LOGGED_OFF));
+                                PromptMsgProperty.RECEIVER_LOGGED_OFF.getBytes()));
                 clientChannel.write(ByteBuffer.wrap(response));
             } else {
                 byte[] response = ProtoStuffUtil.serialize(
