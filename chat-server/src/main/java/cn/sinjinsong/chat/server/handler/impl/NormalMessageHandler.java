@@ -39,7 +39,7 @@ public class NormalMessageHandler extends MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .build(),
-                                PromptMsgProperty.RECEIVER_LOGGED_OFF.getBytes()));
+                                PromptMsgProperty.RECEIVER_LOGGED_OFF.getBytes(PromptMsgProperty.charset)));
                 clientChannel.write(ByteBuffer.wrap(response));
             } else {
                 byte[] response = ProtoStuffUtil.serialize(
@@ -49,7 +49,7 @@ public class NormalMessageHandler extends MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .build(),
-                                message.getBody().getBytes()));
+                                message.getBody().getBytes(PromptMsgProperty.charset)));
                 System.out.println("已转发给" + receiverChannel);
                 receiverChannel.write(ByteBuffer.wrap(response));
                 //也给自己发送一份

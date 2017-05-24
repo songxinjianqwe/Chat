@@ -39,7 +39,7 @@ public class LogoutMessageHandler extends MessageHandler {
                             .responseCode(ResponseCode.LOGOUT_SUCCESS.getCode())
                             .sender(message.getHeader().getSender())
                             .timestamp(message.getHeader().getTimestamp()).build(),
-                            PromptMsgProperty.LOGOUT_SUCCESS.getBytes()));
+                            PromptMsgProperty.LOGOUT_SUCCESS.getBytes(PromptMsgProperty.charset)));
             clientChannel.write(ByteBuffer.wrap(response));
 
             //下线广播
@@ -49,7 +49,7 @@ public class LogoutMessageHandler extends MessageHandler {
                                     .type(ResponseType.NORMAL)
                                     .sender(SYSTEM_SENDER)
                                     .timestamp(message.getHeader().getTimestamp()).build(),
-                            String.format(PromptMsgProperty.LOGOUT_BROADCAST, message.getHeader().getSender()).getBytes()));
+                            String.format(PromptMsgProperty.LOGOUT_BROADCAST, message.getHeader().getSender()).getBytes(PromptMsgProperty.charset)));
             super.broadcast(logoutBroadcast, server);
             System.out.println("客户端退出");
             //必须要cancel，否则无法从keys从去除该客户端

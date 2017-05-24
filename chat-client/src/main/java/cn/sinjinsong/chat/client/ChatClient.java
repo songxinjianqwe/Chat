@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 
 public class ChatClient extends Frame {
@@ -36,13 +37,14 @@ public class ChatClient extends Frame {
     private String username;
     private boolean isLogin = false;
     private boolean isConnected = false;
-
+    private Charset charset = Charset.forName("UTF-8");
+    
     public ChatClient(String name, int x, int y, int w, int h) {
         super(name);
         initFrame(x, y, w, h);
         initNetWork();
     }
-
+    
     /**
      * 初始化窗体
      *
@@ -251,7 +253,7 @@ public class ChatClient extends Frame {
                             break;
                         }
                     }
-                    String info = new String(response.getBody());
+                    String info = new String(response.getBody(),charset);
                     JOptionPane.showMessageDialog(ChatClient.this, info);
                     break;
                 case NORMAL:
@@ -280,7 +282,7 @@ public class ChatClient extends Frame {
             sb.append(originalText)
                     .append(header.getSender())
                     .append(": ")
-                    .append(new String(response.getBody()))
+                    .append(new String(response.getBody(),charset))
                     .append("    ")
                     .append(DateTimeUtil.formatLocalDateTime(header.getTimestamp()))
                     .append("\n");
@@ -289,7 +291,7 @@ public class ChatClient extends Frame {
     }
 
 
-    private class PictureDialog extends JDialog {
+    private static class PictureDialog extends JDialog {
         public PictureDialog(Frame owner, String title, boolean modal,
                              String path) {
             super(owner, title, modal);

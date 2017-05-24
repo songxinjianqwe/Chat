@@ -30,7 +30,7 @@ public class ExecutionExceptionHandler {
                                         .type(ResponseType.PROMPT)
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp()).build(),
-                                PromptMsgProperty.TASK_FAILURE.getBytes()));
+                                PromptMsgProperty.TASK_FAILURE.getBytes(PromptMsgProperty.charset)));
                 System.out.println("返回任务执行失败信息");
                 downloadInfo.getReceiver().write(ByteBuffer.wrap(response));
             }

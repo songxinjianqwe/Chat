@@ -41,7 +41,7 @@ public class LoginMessageHandler extends MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .responseCode(ResponseCode.LOGIN_SUCCESS.getCode()).build(),
-                                PromptMsgProperty.LOGIN_SUCCESS.getBytes()));
+                                PromptMsgProperty.LOGIN_SUCCESS.getBytes(PromptMsgProperty.charset)));
                 clientChannel.write(ByteBuffer.wrap(response));
                 //连续发送信息不可行,必须要暂时中断一下
                 //粘包问题
@@ -53,7 +53,7 @@ public class LoginMessageHandler extends MessageHandler {
                                         .type(ResponseType.NORMAL)
                                         .sender(SYSTEM_SENDER)
                                         .timestamp(message.getHeader().getTimestamp()).build(),
-                                String.format(PromptMsgProperty.LOGIN_BROADCAST, message.getHeader().getSender()).getBytes()));
+                                String.format(PromptMsgProperty.LOGIN_BROADCAST, message.getHeader().getSender()).getBytes(PromptMsgProperty.charset)));
                super.broadcast(loginBroadcast,server);
                
             } else {
@@ -64,7 +64,7 @@ public class LoginMessageHandler extends MessageHandler {
                                         .responseCode(ResponseCode.LOGIN_FAILURE.getCode())
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp()).build(),
-                                PromptMsgProperty.LOGIN_FAILURE.getBytes()));
+                                PromptMsgProperty.LOGIN_FAILURE.getBytes(PromptMsgProperty.charset)));
                 clientChannel.write(ByteBuffer.wrap(response));
             }
         } catch (IOException e) {

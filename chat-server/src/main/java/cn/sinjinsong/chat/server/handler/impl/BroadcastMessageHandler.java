@@ -1,6 +1,7 @@
 package cn.sinjinsong.chat.server.handler.impl;
 
 import cn.sinjinsong.chat.server.handler.MessageHandler;
+import cn.sinjinsong.chat.server.property.PromptMsgProperty;
 import cn.sinjinsong.common.domain.DownloadInfo;
 import cn.sinjinsong.common.domain.Message;
 import cn.sinjinsong.common.domain.Response;
@@ -28,7 +29,7 @@ public class BroadcastMessageHandler extends MessageHandler {
                                     .type(ResponseType.NORMAL)
                                     .sender(message.getHeader().getSender())
                                     .timestamp(message.getHeader().getTimestamp()).build(),
-                                    message.getBody().getBytes()));
+                                    message.getBody().getBytes(PromptMsgProperty.charset)));
             super.broadcast(response,server);
         } catch (IOException e) {
             e.printStackTrace();

@@ -205,7 +205,7 @@ public class ChatServer {
     public static void main(String[] args) {
         System.out.println("Initialing...");
         ChatServer chatServer = new ChatServer();
-        Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in,"UTF-8");
         while(scanner.hasNext()){
             String next = scanner.next();
             if(next.equalsIgnoreCase(QUIT)){
