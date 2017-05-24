@@ -29,7 +29,7 @@ public class ChatServer {
     private ExecutorService downloadPool;
     private BlockingQueue<DownloadInfo> downloadTaskQueue;
     private DownloadManager downloadManager;
-
+    
     public ChatServer() {
         System.out.println("服务器启动");
         initServer();
@@ -140,11 +140,7 @@ public class ChatServer {
                 key.selector().wakeup();
                 byte[] bytes = baos.toByteArray();
                 baos.close();
-                if(bytes.length == 0){
-                    return;
-                }
                 Message message = ProtoStuffUtil.deserialize(bytes, Message.class);
-                System.out.println(message.getHeader().getType().toString().toLowerCase());
                 MessageHandler messageHandler = SpringContextUtil.getBean("MessageHandler", message.getHeader().getType().toString().toLowerCase());
                 messageHandler.handle(message, selector, key, downloadTaskQueue);
             } catch (IOException e) {

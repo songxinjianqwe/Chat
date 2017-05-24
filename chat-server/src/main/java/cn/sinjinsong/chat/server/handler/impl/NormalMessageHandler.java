@@ -38,7 +38,7 @@ public class NormalMessageHandler implements MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .build(),
-                                ByteBuffer.wrap(UserManager.RECEIVER_LOGGED_OFF)));
+                                UserManager.RECEIVER_LOGGED_OFF));
                 clientChannel.write(ByteBuffer.wrap(response));
             } else {
                 byte[] response = ProtoStuffUtil.serialize(
@@ -48,7 +48,7 @@ public class NormalMessageHandler implements MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .build(),
-                                ByteBuffer.wrap(message.getBody().getBytes())));
+                                message.getBody().getBytes()));
                 System.out.println("已转发给" + receiverChannel);
                 receiverChannel.write(ByteBuffer.wrap(response));
                 //也给自己发送一份

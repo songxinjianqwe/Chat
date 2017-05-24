@@ -7,8 +7,10 @@ import java.util.Map;
  * Created by SinjinSong on 2017/5/23.
  */
 public enum ResponseCode {
-    LOGIN_SUCCESS(1,"成功"),
-    LOGIN_FAILURE(2,"失败");
+    LOGIN_SUCCESS(1,"登录成功"),
+    LOGIN_FAILURE(2,"登录失败"),
+    LOGOUT_SUCCESS(3,"下线成功");
+    
     private int code;
     private String desc;
     private static Map<Integer, ResponseCode> map = new HashMap<>();

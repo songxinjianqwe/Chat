@@ -1,5 +1,7 @@
 package cn.sinjinsong.chat.server.task;
 
+import cn.sinjinsong.chat.server.http.HttpConnectionManager;
+import cn.sinjinsong.chat.server.util.SpringContextUtil;
 import cn.sinjinsong.common.domain.DownloadInfo;
 import cn.sinjinsong.common.domain.MessageHeader;
 import cn.sinjinsong.common.domain.Response;
@@ -21,20 +23,23 @@ import java.util.concurrent.Future;
 public class DownloadManager implements Runnable {
     private ExecutorService pool;
     private BlockingQueue<DownloadInfo> queue;
-
+    private HttpConnectionManager manager;
+    private boolean isConnected;
     public DownloadManager(ExecutorService pool, BlockingQueue<DownloadInfo> queue) {
         this.pool = pool;
         this.queue = queue;
+        this.manager = SpringContextUtil.getBean("httpConnectionManager");
+        this.isConnected = true;
     }
-
     @Override
     public void run() {
         try {
-            while (true) {
+            while (isConnected) {
                 DownloadInfo info = queue.take();
                 MessageHeader header = info.getMessage().getHeader();
-                Future<ByteBuffer> future = pool.submit(new DownloadHandler(info));
-                ByteBuffer buffer = future.get();
+                Future<byte[]> future = pool.submit(new DownloadHandler(info,manager));
+                System.out.println(info.getReceiver().getRemoteAddress()+"已执行任务");
+                byte[] buffer = future.get();
                 byte[] response = ProtoStuffUtil.serialize(
                         new Response(ResponseHeader.builder()
                                 .type(ResponseType.FILE)

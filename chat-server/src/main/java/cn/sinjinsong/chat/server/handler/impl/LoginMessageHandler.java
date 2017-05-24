@@ -40,7 +40,7 @@ public class LoginMessageHandler implements MessageHandler {
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp())
                                         .responseCode(ResponseCode.LOGIN_SUCCESS.getCode()).build(),
-                                ByteBuffer.wrap(UserManager.LOGIN_SUCCESS)));
+                                UserManager.LOGIN_SUCCESS));
 
                 clientChannel.write(ByteBuffer.wrap(response));
             } else {
@@ -51,7 +51,7 @@ public class LoginMessageHandler implements MessageHandler {
                                         .responseCode(ResponseCode.LOGIN_FAILURE.getCode())
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp()).build(),
-                                ByteBuffer.wrap(UserManager.LOGIN_FAILURE)));
+                                UserManager.LOGIN_FAILURE));
                 clientChannel.write(ByteBuffer.wrap(response));
             }
         } catch (IOException e) {

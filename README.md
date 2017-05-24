@@ -2,7 +2,7 @@
 
 - 用到的技术点
    - 线程池
-   - 阻塞队列
+   - 阻塞队列，生产者消费者模式
    - Selector
    - Channel
    - Buffer

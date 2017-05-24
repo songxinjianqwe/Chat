@@ -31,7 +31,7 @@ public class BroadcastMessageHandler implements MessageHandler {
                                     .type(ResponseType.NORMAL)
                                     .sender(message.getHeader().getSender())
                                     .timestamp(message.getHeader().getTimestamp()).build(),
-                                    ByteBuffer.wrap(message.getBody().getBytes())));
+                                    message.getBody().getBytes()));
             for (SelectionKey selectionKey : server.keys()) {
                 Channel channel = selectionKey.channel();
                 if (channel instanceof SocketChannel) {

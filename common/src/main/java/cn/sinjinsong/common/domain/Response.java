@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.nio.ByteBuffer;
-
 /**
  * Created by SinjinSong on 2017/5/23.
  */
@@ -14,5 +12,5 @@ import java.nio.ByteBuffer;
 @AllArgsConstructor
 public class Response {
     private ResponseHeader header;
-    private ByteBuffer body;
+    private byte[] body;
 }

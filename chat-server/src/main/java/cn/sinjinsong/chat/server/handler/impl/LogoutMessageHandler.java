@@ -6,6 +6,7 @@ import cn.sinjinsong.common.domain.DownloadInfo;
 import cn.sinjinsong.common.domain.Message;
 import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
+import cn.sinjinsong.common.enumeration.ResponseCode;
 import cn.sinjinsong.common.enumeration.ResponseType;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,10 +33,12 @@ public class LogoutMessageHandler implements MessageHandler {
             SocketChannel clientChannel = (SocketChannel) client.channel();
             userManager.logout(clientChannel);
             byte[] response = ProtoStuffUtil.serialize(
-                    new Response(ResponseHeader.builder().type(ResponseType.PROMPT)
+                    new Response(ResponseHeader.builder()
+                            .type(ResponseType.PROMPT)
+                            .responseCode(ResponseCode.LOGOUT_SUCCESS.getCode())
                             .sender(message.getHeader().getSender())
                             .timestamp(message.getHeader().getTimestamp()).build(),
-                            ByteBuffer.wrap(UserManager.LOGOUT_SUCCESS)));
+                            UserManager.LOGOUT_SUCCESS));
             clientChannel.write(ByteBuffer.wrap(response));
             System.out.println("客户端退出");
             //必须要cancel，否则无法从keys从去除该客户端

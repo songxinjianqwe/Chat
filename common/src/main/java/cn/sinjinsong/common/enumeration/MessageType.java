@@ -8,7 +8,7 @@ public enum MessageType {
     LOGOUT(2,"注销"),
     NORMAL(3,"单聊"),
     BROADCAST(4,"群发"),
-    DOWNLOAD(4,"查询");
+    TASK(4,"任务");
     
     private int code;
     private String  desc;

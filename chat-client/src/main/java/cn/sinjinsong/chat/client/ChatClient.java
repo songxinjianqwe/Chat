@@ -16,6 +16,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -34,6 +35,7 @@ public class ChatClient extends Frame {
     private ReceiverHandler listener;
     private String username;
     private boolean isLogin = false;
+    private boolean isConnected = false;
 
     public ChatClient(String name, int x, int y, int w, int h) {
         super(name);
@@ -88,6 +90,9 @@ public class ChatClient extends Frame {
             login();
             listener = new ReceiverHandler();
             new Thread(listener).start();
+            isConnected = true;
+        } catch (ConnectException e) {
+            JOptionPane.showMessageDialog(this, "连接服务器失败");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -113,10 +118,17 @@ public class ChatClient extends Frame {
     private void disConnect() {
         try {
             logout();
+            if (!isConnected) {
+                return;
+            }
             listener.shutdown();
+            //如果发送消息后马上断开连接，那么消息可能无法送达
+            Thread.sleep(10);
             clientChannel.socket().close();
             clientChannel.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
@@ -125,6 +137,7 @@ public class ChatClient extends Frame {
         if (!isLogin) {
             return;
         }
+        System.out.println("客户端发送下线请求");
         Message message = new Message(
                 MessageHeader.builder()
                         .type(MessageType.LOGOUT)
@@ -161,6 +174,13 @@ public class ChatClient extends Frame {
                                 .receiver(receiver)
                                 .timestamp(System.currentTimeMillis())
                                 .build(), slices[1]);
+            } else if (content.startsWith("task")) {
+                message = new Message(
+                        MessageHeader.builder()
+                                .type(MessageType.TASK)
+                                .sender(username)
+                                .timestamp(System.currentTimeMillis())
+                                .build(), content.substring(content.indexOf(":") + 1));
             } else {
                 //广播模式
                 message = new Message(
@@ -220,26 +240,31 @@ public class ChatClient extends Frame {
             ResponseHeader header = response.getHeader();
             switch (header.getType()) {
                 case PROMPT:
-                    String info = new String(response.getBody().array());
-                    JOptionPane.showMessageDialog(null, info);
                     if (header.getResponseCode() != null) {
                         ResponseCode code = ResponseCode.fromCode(header.getResponseCode());
                         if (code == ResponseCode.LOGIN_SUCCESS) {
                             isLogin = true;
                             System.out.println("登录成功");
+                        } else if (code == ResponseCode.LOGOUT_SUCCESS) {
+                            System.out.println("下线成功");
+                            break;
                         }
                     }
+                    String info = new String(response.getBody());
+                    JOptionPane.showMessageDialog(ChatClient.this, info);
                     break;
                 case NORMAL:
-                    String content = formatMessage(taContent.getText(),response);
+                    String content = formatMessage(taContent.getText(), response);
                     taContent.setText(content);
                     taContent.setCaretPosition(content.length());
                     break;
                 case FILE:
                     try {
                         String path = JOptionPane.showInputDialog("请输入保存的文件路径");
-                        ByteBuffer buf = response.getBody();
+                        byte[] buf = response.getBody();
                         FileUtil.save(path, buf);
+                        //显示该图片
+                        new PictureDialog(ChatClient.this,"图片",false,path);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -254,7 +279,7 @@ public class ChatClient extends Frame {
             sb.append(originalText)
                     .append(header.getSender())
                     .append(": ")
-                    .append(new String(response.getBody().array()))
+                    .append(new String(response.getBody()))
                     .append("    ")
                     .append(DateTimeUtil.formatLocalDateTime(header.getTimestamp()))
                     .append("\n");
@@ -262,6 +287,18 @@ public class ChatClient extends Frame {
         }
     }
 
+
+    private class PictureDialog extends JDialog {
+        public PictureDialog(Frame owner, String title, boolean modal,
+                             String path) {
+            super(owner, title, modal);
+            ImageIcon icon = new ImageIcon(path);
+            JLabel lbPhoto = new JLabel(icon);
+            this.add(lbPhoto);
+            this.setSize(icon.getIconWidth(), icon.getIconHeight());
+            this.setVisible(true);
+        }
+    }
 
     public static void main(String[] args) {
         System.out.println("Initialing...");
