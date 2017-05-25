@@ -1,11 +1,9 @@
 package cn.sinjinsong.chat.client;
 
-import cn.sinjinsong.common.domain.Message;
-import cn.sinjinsong.common.domain.MessageHeader;
-import cn.sinjinsong.common.domain.Response;
-import cn.sinjinsong.common.domain.ResponseHeader;
+import cn.sinjinsong.common.domain.*;
 import cn.sinjinsong.common.enumeration.MessageType;
 import cn.sinjinsong.common.enumeration.ResponseCode;
+import cn.sinjinsong.common.enumeration.TaskType;
 import cn.sinjinsong.common.util.DateTimeUtil;
 import cn.sinjinsong.common.util.FileUtil;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
@@ -38,13 +36,13 @@ public class ChatClient extends Frame {
     private boolean isLogin = false;
     private boolean isConnected = false;
     private Charset charset = Charset.forName("UTF-8");
-    
+
     public ChatClient(String name, int x, int y, int w, int h) {
         super(name);
         initFrame(x, y, w, h);
         initNetWork();
     }
-    
+
     /**
      * 初始化窗体
      *
@@ -90,14 +88,17 @@ public class ChatClient extends Frame {
             clientChannel.register(selector, SelectionKey.OP_READ);
             buf = ByteBuffer.allocate(DEFAULT_BUFFER_SIZE);
             login();
-            listener = new ReceiverHandler();
-            new Thread(listener).start();
             isConnected = true;
         } catch (ConnectException e) {
             JOptionPane.showMessageDialog(this, "连接服务器失败");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void launch() {
+        this.listener = new ReceiverHandler();
+        new Thread(listener).start();
     }
 
     private void login() {
@@ -108,7 +109,7 @@ public class ChatClient extends Frame {
                         .type(MessageType.LOGIN)
                         .sender(username)
                         .timestamp(System.currentTimeMillis())
-                        .build(), password);
+                        .build(), password.getBytes(charset));
         try {
             clientChannel.write(ByteBuffer.wrap(ProtoStuffUtil.serialize(message)));
         } catch (IOException e) {
@@ -175,14 +176,18 @@ public class ChatClient extends Frame {
                                 .sender(username)
                                 .receiver(receiver)
                                 .timestamp(System.currentTimeMillis())
-                                .build(), slices[1]);
+                                .build(), slices[1].getBytes(charset));
             } else if (content.startsWith("task")) {
+                String info = content.substring(content.indexOf('.') + 1);
+                int split = info.indexOf(':');
+                TaskDescription taskDescription = new TaskDescription(TaskType.valueOf(info.substring(0,split).toUpperCase()), info.substring(split+1));
+                //处理不同的Task类型
                 message = new Message(
                         MessageHeader.builder()
                                 .type(MessageType.TASK)
                                 .sender(username)
                                 .timestamp(System.currentTimeMillis())
-                                .build(), content.substring(content.indexOf(":") + 1));
+                                .build(), ProtoStuffUtil.serialize(taskDescription));
             } else {
                 //广播模式
                 message = new Message(
@@ -190,7 +195,7 @@ public class ChatClient extends Frame {
                                 .type(MessageType.BROADCAST)
                                 .sender(username)
                                 .timestamp(System.currentTimeMillis())
-                                .build(), content);
+                                .build(), content.getBytes(charset));
             }
             System.out.println(message);
             clientChannel.write(ByteBuffer.wrap(ProtoStuffUtil.serialize(message)));
@@ -233,7 +238,7 @@ public class ChatClient extends Frame {
                     }
                 }
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(null,"服务器关闭，请重新尝试连接");
+                JOptionPane.showMessageDialog(null, "服务器关闭，请重新尝试连接");
                 isLogin = false;
             }
         }
@@ -253,7 +258,7 @@ public class ChatClient extends Frame {
                             break;
                         }
                     }
-                    String info = new String(response.getBody(),charset);
+                    String info = new String(response.getBody(), charset);
                     JOptionPane.showMessageDialog(ChatClient.this, info);
                     break;
                 case NORMAL:
@@ -267,7 +272,7 @@ public class ChatClient extends Frame {
                         byte[] buf = response.getBody();
                         FileUtil.save(path, buf);
                         //显示该图片
-                        new PictureDialog(ChatClient.this,"图片",false,path);
+                        new PictureDialog(ChatClient.this, "图片", false, path);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -282,7 +287,7 @@ public class ChatClient extends Frame {
             sb.append(originalText)
                     .append(header.getSender())
                     .append(": ")
-                    .append(new String(response.getBody(),charset))
+                    .append(new String(response.getBody(), charset))
                     .append("    ")
                     .append(DateTimeUtil.formatLocalDateTime(header.getTimestamp()))
                     .append("\n");
@@ -305,7 +310,8 @@ public class ChatClient extends Frame {
 
     public static void main(String[] args) {
         System.out.println("Initialing...");
-        new ChatClient("Client", 200, 200, 300, 200);
+        ChatClient client = new ChatClient("Client", 200, 200, 300, 200);
+        client.launch();
     }
 }
 

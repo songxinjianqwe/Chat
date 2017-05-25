@@ -1,40 +1,43 @@
 package cn.sinjinsong.chat.server.task;
 
-import cn.sinjinsong.chat.server.exception.handler.ExecutionExceptionHandler;
+import cn.sinjinsong.chat.server.exception.factory.ExceptionHandlingThreadFactory;
+import cn.sinjinsong.chat.server.handler.task.BaseTaskHandler;
 import cn.sinjinsong.chat.server.http.HttpConnectionManager;
 import cn.sinjinsong.chat.server.util.SpringContextUtil;
-import cn.sinjinsong.common.domain.DownloadInfo;
-import cn.sinjinsong.common.domain.MessageHeader;
-import cn.sinjinsong.common.domain.Response;
-import cn.sinjinsong.common.domain.ResponseHeader;
-import cn.sinjinsong.common.enumeration.ResponseType;
-import cn.sinjinsong.common.util.ProtoStuffUtil;
+import cn.sinjinsong.common.domain.Task;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Created by SinjinSong on 2017/5/23.
  * 消费者
+ * 负责从阻塞队列中取出任务并提交给线程池
  */
-public class TaskManagerThread implements Runnable {
-    private ExecutorService pool;
-    private BlockingQueue<DownloadInfo> queue;
-    private HttpConnectionManager manager;
-    private ExecutionExceptionHandler exceptionHandler;
+public class TaskManagerThread extends Thread {
+    private ExecutorService taskPool;
+    private BlockingQueue<Task> taskBlockingQueue;
+    private HttpConnectionManager httpConnectionManager;
 
-    public TaskManagerThread(ExecutorService pool, BlockingQueue<DownloadInfo> queue) {
-        this.pool = pool;
-        this.queue = queue;
-        this.manager = SpringContextUtil.getBean("httpConnectionManager");
-        this.exceptionHandler = SpringContextUtil.getBean("executionExceptionHandler");
+    private ExecutorService crawlerPool;
+
+
+    public TaskManagerThread(BlockingQueue<Task> taskBlockingQueue) {
+        this.taskPool = new ThreadPoolExecutor(
+                5, 10, 1000,
+                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(10),
+                new ExceptionHandlingThreadFactory(SpringContextUtil.getBean("taskExceptionHandler")),
+                new ThreadPoolExecutor.CallerRunsPolicy());
+        this.taskBlockingQueue = taskBlockingQueue;
+        this.httpConnectionManager = SpringContextUtil.getBean("httpConnectionManager");
+        this.crawlerPool = new ThreadPoolExecutor(
+                5, 10, 1000,
+                TimeUnit.MILLISECONDS, new ArrayBlockingQueue<>(10),
+                new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     public void shutdown() {
+        taskPool.shutdown();
         Thread.currentThread().interrupt();
     }
 
@@ -46,34 +49,25 @@ public class TaskManagerThread implements Runnable {
      */
     @Override
     public void run() {
-        Future<byte[]> future = null;
-        DownloadInfo info;
-
-        while (!Thread.currentThread().isInterrupted()) {
-            try {
-                info = queue.take();
-                MessageHeader header = info.getMessage().getHeader();
-                future = pool.submit(new DownloadHandler(info, manager));
-                System.out.println(info.getReceiver().getRemoteAddress() + "已执行任务");
-                byte[] buffer = future.get();
-                byte[] response = ProtoStuffUtil.serialize(
-                        new Response(ResponseHeader.builder()
-                                .type(ResponseType.FILE)
-                                .sender(header.getSender())
-                                .timestamp(header.getTimestamp())
-                                .build(),
-                                buffer));
-                info.getReceiver().write(ByteBuffer.wrap(response));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                System.out.println("线程运行时异常");
-                exceptionHandler.handle(e.getCause());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                future.cancel(true);
+        Task task;
+        try {
+            while (!Thread.currentThread().isInterrupted()) {
+                task = taskBlockingQueue.take();
+                System.out.println(task.getReceiver().getRemoteAddress()+"已从阻塞队列中取出");
+                BaseTaskHandler taskHandler = SpringContextUtil.getBean("BaseTaskHandler", task.getType().toString().toLowerCase());
+                taskHandler.init(task,httpConnectionManager,this);
+                System.out.println(taskHandler);
+                taskPool.execute(taskHandler);
             }
+        } catch (InterruptedException e) {
+            //这里也无法得知发来消息的是谁，所以只能直接退出了
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+    }
+    
+    public ExecutorService getCrawlerPool() {
+        return crawlerPool;
     }
 }

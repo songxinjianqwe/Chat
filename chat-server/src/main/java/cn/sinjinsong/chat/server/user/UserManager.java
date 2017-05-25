@@ -54,7 +54,7 @@ public class UserManager {
         onlineUsers.remove(channel);
     }
     
-    public SocketChannel getUserChannel(String username) {
+    public synchronized SocketChannel getUserChannel(String username) {
         User user = users.get(username);
         if(user == null){
             return null;
@@ -66,9 +66,5 @@ public class UserManager {
             return null;
         }
     }
-
-
-    public User loadUser(String username) {
-        return users.get(username);
-    }
+    
 }
