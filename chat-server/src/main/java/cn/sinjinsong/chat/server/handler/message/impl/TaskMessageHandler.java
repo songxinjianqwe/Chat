@@ -5,6 +5,7 @@ import cn.sinjinsong.common.domain.Task;
 import cn.sinjinsong.common.domain.Message;
 import cn.sinjinsong.common.domain.TaskDescription;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -20,6 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 注意所有的InterruptedException，要么抛给上层，要么自己处理
  */
 @Component("MessageHandler.task")
+@Slf4j
 public class TaskMessageHandler extends MessageHandler {
     
     @Override
@@ -28,7 +30,7 @@ public class TaskMessageHandler extends MessageHandler {
         Task task = new Task((SocketChannel) client.channel(), taskDescription.getType(), taskDescription.getDesc(), message);
         try {
             queue.put(task);
-            System.out.println(task.getReceiver().getRemoteAddress()+"已放入阻塞队列");
+            log.info("{}已放入阻塞队列",task.getReceiver().getRemoteAddress());
         }catch (IOException e) {
             e.printStackTrace();
         }

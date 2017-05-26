@@ -7,6 +7,7 @@ import cn.sinjinsong.common.domain.MessageHeader;
 import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseType;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ import java.io.IOException;
  */
 @Component("BaseTaskHandler.file")
 @Scope("prototype")
+@Slf4j
 public class FileTaskHandler extends BaseTaskHandler {
     
     @Override
@@ -28,7 +30,7 @@ public class FileTaskHandler extends BaseTaskHandler {
         if (!manager.copyStream(info.getDesc(), baos)) {
             throw new TaskException(info);
         }
-        System.out.println("下载图片成功");
+        log.info("下载图片成功");
         byte[] bytes = baos.toByteArray();
         baos.close();
         return new Response(ResponseHeader.builder()

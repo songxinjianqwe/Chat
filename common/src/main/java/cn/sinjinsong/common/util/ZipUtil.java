@@ -18,8 +18,7 @@ public class ZipUtil {
         ZipEntry zipEntry;
         for (int i = 0; i < files.size(); i++) {
             try {
-                zipEntry = new ZipEntry(String.format(FILE_NAME_PATTERN,String.valueOf(i),suffix));
-                System.out.println(i+"放入Entry");
+                zipEntry = new ZipEntry(String.format(FILE_NAME_PATTERN,String.valueOf(i),suffix != null ? suffix:DEFAULT_SUFFIX));
                 zos.putNextEntry(zipEntry);
                 zos.write(files.get(i));
             } catch (IOException e) {
@@ -35,7 +34,6 @@ public class ZipUtil {
             e.printStackTrace();
         }
         byte[] result = baos.toByteArray();
-        System.out.println("最终数据:"+result.length);
         return result;
     }
 }

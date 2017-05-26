@@ -14,9 +14,6 @@ public class FileUtil {
         FileChannel outChannel = FileChannel.open(Paths.get(path),
                 StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
         outChannel.write(ByteBuffer.wrap(buf));
-//        MappedByteBuffer outMappedBuf = outChannel.map(FileChannel.MapMode.READ_WRITE, 0, buf.length);
-//        outMappedBuf.put(buf);
-//        outChannel.force(true);
         outChannel.close();
     }
 }

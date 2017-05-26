@@ -1,6 +1,7 @@
 package cn.sinjinsong.chat.server.user;
 
 import cn.sinjinsong.common.domain.User;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.nio.channels.SocketChannel;
@@ -11,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by SinjinSong on 2017/5/23.
  */
 @Component("userManager")
+@Slf4j
 public class UserManager {
     private Map<String, User> users;
     /**
@@ -38,7 +40,7 @@ public class UserManager {
             return false;
         }
         if(user.getChannel() != null){
-            System.out.println("重复登录，拒绝");
+            log.info("重复登录，拒绝");
             //重复登录会拒绝第二次登录
             return false;
         }
@@ -49,7 +51,7 @@ public class UserManager {
     
     public synchronized void logout(SocketChannel channel) {
         String username = onlineUsers.get(channel);
-        System.out.println(username+"下线");
+        log.info("{}下线",username);
         users.get(username).setChannel(null);
         onlineUsers.remove(channel);
     }

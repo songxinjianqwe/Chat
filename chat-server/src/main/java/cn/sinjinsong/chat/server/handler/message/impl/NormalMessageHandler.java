@@ -6,6 +6,7 @@ import cn.sinjinsong.chat.server.user.UserManager;
 import cn.sinjinsong.common.domain.*;
 import cn.sinjinsong.common.enumeration.ResponseType;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by SinjinSong on 2017/5/23.
  */
 @Component("MessageHandler.normal")
+@Slf4j
 public class NormalMessageHandler extends MessageHandler {
     @Autowired
     private UserManager userManager;
@@ -51,7 +53,7 @@ public class NormalMessageHandler extends MessageHandler {
                                         .timestamp(message.getHeader().getTimestamp())
                                         .build(),
                                 message.getBody()));
-                System.out.println("已转发给" + receiverChannel);
+                log.info("已转发给",receiverChannel);
                 receiverChannel.write(ByteBuffer.wrap(response));
                 //也给自己发送一份
                 clientChannel.write(ByteBuffer.wrap(response));

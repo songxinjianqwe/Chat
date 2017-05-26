@@ -8,6 +8,7 @@ import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseType;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.nio.ByteBuffer;
  * UncaughtExceptionHandler异常处理器可以处理ExecutorService通过execute方法提交的线程中抛出的RuntimeException
  */
 @Component("taskExceptionHandler")
+@Slf4j
 public class TaskExceptionHandler implements Thread.UncaughtExceptionHandler{
     @Override
     public void uncaughtException(Thread t, Throwable e) {
@@ -36,7 +38,7 @@ public class TaskExceptionHandler implements Thread.UncaughtExceptionHandler{
                                         .sender(message.getHeader().getSender())
                                         .timestamp(message.getHeader().getTimestamp()).build(),
                                 PromptMsgProperty.TASK_FAILURE.getBytes(PromptMsgProperty.charset)));
-                System.out.println("返回任务执行失败信息");
+                log.info("返回任务执行失败信息");
                 task.getReceiver().write(ByteBuffer.wrap(response));
             }
         } catch (IOException e1) {

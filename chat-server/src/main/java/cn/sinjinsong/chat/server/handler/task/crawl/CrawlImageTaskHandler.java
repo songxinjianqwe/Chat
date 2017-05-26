@@ -10,6 +10,7 @@ import cn.sinjinsong.common.domain.Response;
 import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseType;
 import cn.sinjinsong.common.util.ZipUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,7 @@ import java.util.concurrent.*;
  */
 @Component("BaseTaskHandler.crawl_image")
 @Scope("prototype")
+@Slf4j
 public class CrawlImageTaskHandler extends BaseTaskHandler {
     private ExecutorService crawlerPool;
 
@@ -61,11 +63,10 @@ public class CrawlImageTaskHandler extends BaseTaskHandler {
                 result.add(image);
             } catch (ExecutionException e) {
                 //即使有下载任务失败，也不影响，继续下载
-                System.out.println("有图片下载失败");
+                log.info("有图片下载失败");
             }
         }
         result.forEach((bytes) -> System.out.println(bytes.length));
-
         return new Response(ResponseHeader.builder()
                 .type(ResponseType.FILE)
                 .sender(header.getSender())

@@ -1,6 +1,7 @@
 package cn.sinjinsong.chat.server.property;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Created by SinjinSong on 2017/5/24.
@@ -14,5 +15,5 @@ public class PromptMsgProperty {
     public static final String LOGIN_BROADCAST = "%s用户已上线";
     public static final String LOGOUT_BROADCAST = "%s用户已下线";
     public static final String SERVER_ERROR = "服务器内部出现错误，请重试";
-    public static final Charset charset = Charset.forName("UTF-8");
+    public static final Charset charset = StandardCharsets.UTF_8;
 }

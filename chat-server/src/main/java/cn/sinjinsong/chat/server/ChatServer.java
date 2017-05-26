@@ -4,9 +4,10 @@ import cn.sinjinsong.chat.server.exception.handler.InterruptedExceptionHandler;
 import cn.sinjinsong.chat.server.handler.message.MessageHandler;
 import cn.sinjinsong.chat.server.task.TaskManagerThread;
 import cn.sinjinsong.chat.server.util.SpringContextUtil;
-import cn.sinjinsong.common.domain.Task;
 import cn.sinjinsong.common.domain.Message;
+import cn.sinjinsong.common.domain.Task;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -24,6 +25,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Created by SinjinSong on 2017/3/25.
  */
+
+/**
+ * @Slf4j会为当前类生成一个名为log的日志对象
+ * Slf4j可以在打印的字符串中添加占位符，以避免字符串的拼接
+ */
+@Slf4j
 public class ChatServer {
     public static final int DEFAULT_BUFFER_SIZE = 1024;
     public static final int PORT = 9000;
@@ -39,9 +46,8 @@ public class ChatServer {
     private TaskManagerThread taskManagerThread;
     private ListenerThread listenerThread;
     private InterruptedExceptionHandler exceptionHandler;
-
     public ChatServer() {
-        System.out.println("服务器启动");
+        log.info("服务器启动");
         initServer();
     }
 
@@ -161,7 +167,7 @@ public class ChatServer {
             client.configureBlocking(false);
             // 监控客户端的读操作是否就绪
             client.register(selector, SelectionKey.OP_READ);
-            System.out.println("服务器连接客户端:" + client.toString());
+            log.info("服务器连接客户端:{}",client);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -196,7 +202,7 @@ public class ChatServer {
                 if (size == -1) {
                     return;
                 }
-                System.out.println("读取完毕，继续监听");
+                log.info("读取完毕，继续监听");
                 //继续监听读取事件
                 key.interestOps(key.interestOps() | SelectionKey.OP_READ);
                 key.selector().wakeup();
@@ -207,7 +213,7 @@ public class ChatServer {
                 try {
                     messageHandler.handle(message, selector, key, downloadTaskQueue, onlineUsers);
                 } catch (InterruptedException e) {
-                    System.out.println("服务器线程被中断");
+                    log.error("服务器线程被中断");
                     exceptionHandler.handle(client, message);
                     e.printStackTrace();
                 }

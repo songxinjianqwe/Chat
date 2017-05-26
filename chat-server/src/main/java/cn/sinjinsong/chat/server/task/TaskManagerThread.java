@@ -5,6 +5,7 @@ import cn.sinjinsong.chat.server.handler.task.BaseTaskHandler;
 import cn.sinjinsong.chat.server.http.HttpConnectionManager;
 import cn.sinjinsong.chat.server.util.SpringContextUtil;
 import cn.sinjinsong.common.domain.Task;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -14,6 +15,7 @@ import java.util.concurrent.*;
  * 消费者
  * 负责从阻塞队列中取出任务并提交给线程池
  */
+@Slf4j
 public class TaskManagerThread extends Thread {
     private ExecutorService taskPool;
     private BlockingQueue<Task> taskBlockingQueue;
@@ -38,6 +40,7 @@ public class TaskManagerThread extends Thread {
 
     public void shutdown() {
         taskPool.shutdown();
+        crawlerPool.shutdown();
         Thread.currentThread().interrupt();
     }
 
@@ -53,7 +56,7 @@ public class TaskManagerThread extends Thread {
         try {
             while (!Thread.currentThread().isInterrupted()) {
                 task = taskBlockingQueue.take();
-                System.out.println(task.getReceiver().getRemoteAddress()+"已从阻塞队列中取出");
+                log.info("{}已从阻塞队列中取出",task.getReceiver().getRemoteAddress());
                 BaseTaskHandler taskHandler = SpringContextUtil.getBean("BaseTaskHandler", task.getType().toString().toLowerCase());
                 taskHandler.init(task,httpConnectionManager,this);
                 System.out.println(taskHandler);

@@ -10,6 +10,7 @@ import cn.sinjinsong.common.domain.ResponseHeader;
 import cn.sinjinsong.common.enumeration.ResponseCode;
 import cn.sinjinsong.common.enumeration.ResponseType;
 import cn.sinjinsong.common.util.ProtoStuffUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Created by SinjinSong on 2017/5/23.
  */
 @Component("MessageHandler.logout")
+@Slf4j
 public class LogoutMessageHandler extends MessageHandler {
     @Autowired
     private UserManager userManager;
@@ -52,7 +54,7 @@ public class LogoutMessageHandler extends MessageHandler {
                                     .timestamp(message.getHeader().getTimestamp()).build(),
                             String.format(PromptMsgProperty.LOGOUT_BROADCAST, message.getHeader().getSender()).getBytes(PromptMsgProperty.charset)));
             super.broadcast(logoutBroadcast, server);
-            System.out.println("客户端退出");
+            log.info("客户端退出");
             //必须要cancel，否则无法从keys从去除该客户端
             client.cancel();
             clientChannel.close();

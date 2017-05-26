@@ -21,6 +21,7 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 public class ChatClient extends Frame {
@@ -35,7 +36,7 @@ public class ChatClient extends Frame {
     private String username;
     private boolean isLogin = false;
     private boolean isConnected = false;
-    private Charset charset = Charset.forName("UTF-8");
+    private Charset charset = StandardCharsets.UTF_8;
 
     public ChatClient(String name, int x, int y, int w, int h) {
         super(name);
