@@ -271,8 +271,10 @@ public class ChatClient extends Frame {
                         String path = JOptionPane.showInputDialog("请输入保存的文件路径");
                         byte[] buf = response.getBody();
                         FileUtil.save(path, buf);
-                        //显示该图片
-                        new PictureDialog(ChatClient.this, "图片", false, path);
+                        if(path.endsWith("jpg")){
+                            //显示该图片
+                            new PictureDialog(ChatClient.this, "图片", false, path);
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
